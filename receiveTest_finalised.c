@@ -21,6 +21,36 @@ static const unsigned char addressSlave = 0x41;		//set adress of slave here; Sti
 
 int uart0_filestream = -1;
 
+int sendData(int fd, char tx_chr)
+{
+  // write next byte with SPACE Parity (address bit is 0)
+  tcgetattr(uart0_filestream, &options);
+  options.c_cflag &= ~PARODD;
+  tcsetattr(uart0_filestream, TCSADRAIN, &options);
+  int count = write(fd, &tx_chr, 1);
+	tcflush(fd, TCIOFLUSH);
+  if (count != 1) {
+    printf("wrerr\n");
+    exit(-1);
+  }
+  return count;
+}
+
+int sendAddress(int fd, char tx_chr)
+{
+  // write first 4 bytes with MARK Parity (address bit is 1)
+  tcgetattr(uart0_filestream, &options);
+  options.c_cflag |= PARODD;
+  tcsetattr(uart0_filestream, TCSADRAIN, &options);
+  int count = write(fd, &tx_chr, 1);
+	tcflush(fd, TCIOFLUSH);
+  if (count != 1) {
+    printf("wrerr\n");
+    exit(-1);
+  }
+  printf("count level: %d\n", count);
+  return count;
+}
 
 unsigned char readByteWithParity(int fd, int *status) {
 
@@ -169,6 +199,24 @@ int processData(unsigned char* func, unsigned char* data, int len)
   switch(*func) {
     case 'I': {   //Initialisation
       printf("Initialisation\n");
+			int l = 7;
+			char tx_buffer[] = {0x10, 0x01, 'I', 0x02, 0x00, 0x03, 0x4E};
+			gpioWrite(EN485, 1);		//Enable RS485 Output
+      int count = 0;
+      int i = 0;
+      count = sendAddress(uart0_filestream, tx_buffer[i]);
+      i++;
+      for(; i < l; i++)
+      {
+        count += sendData(uart0_filestream, tx_buffer[i]);
+      }
+
+			printf("Written %d bytes...\n", count);
+			if (count < 0)
+			{
+				printf("UART TX error\n");
+				exit(11);
+			}
       return 0;
     }
     case '7': {   //Seven Segment Display
