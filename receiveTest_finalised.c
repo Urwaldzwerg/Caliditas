@@ -18,8 +18,10 @@
 #define EN485 4					//set the pin that determines RX or TX functionality of the shield
 
 static const unsigned char addressSlave = 0x41;		//set adress of slave here; Sting A should represent 0x41
+static const unsigned char addressGroup = 0x40;
 
 int uart0_filestream = -1;
+struct termios options;
 
 int sendData(int fd, char tx_chr)
 {
@@ -125,12 +127,12 @@ static const char* sevenOut[256] = {
   [0b00011100] = "u",
   [0b00111011] = "y",
   [0b01101101] = "Z",
-  [0b01100011] = "�"
+  [0b01100011] = "°"
 };
 
 _Bool checkAddress(unsigned char addr)
 {
-	return (addr == addressSlave);
+	return (addr == addressSlave || addr == addressGroup);
 }
 
 int readFrame(int fd, unsigned char* func, unsigned char* data)
@@ -231,6 +233,17 @@ int processData(unsigned char* func, unsigned char* data, int len)
     }
     case 'W': {   //Slave Temperature
       printf("Slave Temperature\n");
+      int l = 7;
+      char tx_buffer[] = {0x10, 0x01, 'W', 0x02, 0b00011001, 0x03, 0x75};
+      gpioWrite(EN485, 1);		//Enable RS485 Output
+			int count = 0;
+			int i = 0;
+      count = sendAddress(uart0_filestream, tx_buffer[i]);
+			i++;
+      for(; i < l; i++)
+			{
+				count += sendData(uart0_filestream, tx_buffer[i]);
+			}
       return 0;
     }
     case 'T': {   //Slave Buttons
