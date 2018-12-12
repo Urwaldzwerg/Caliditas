@@ -202,14 +202,14 @@ int processData(unsigned char* func, unsigned char* data, int len)
 			int l = 7;
 			char tx_buffer[] = {0x10, 0x01, 'I', 0x02, 0x00, 0x03, 0x4E};
 			gpioWrite(EN485, 1);		//Enable RS485 Output
-      int count = 0;
-      int i = 0;
+			int count = 0;
+			int i = 0;
       count = sendAddress(uart0_filestream, tx_buffer[i]);
-      i++;
+			i++;
       for(; i < l; i++)
-      {
-        count += sendData(uart0_filestream, tx_buffer[i]);
-      }
+			{
+				count += sendData(uart0_filestream, tx_buffer[i]);
+			}
 
 			printf("Written %d bytes...\n", count);
 			if (count < 0)

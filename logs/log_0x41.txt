@@ -1,0 +1,359 @@
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 63 33 6d 00 00 08
+°
+4
+Z
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 63 33 6d 00 00 08
+°
+4
+Z
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7f 79 ed 30 00 08
+8
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7f 79 ed 30 00 08
+8
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7f 79 ed 30 00 08
+8
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7f 79 ed 30 00 08
+8
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7f 79 ed 30 00 08
+8
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7f 79 ed 30 00 08
+8
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 63 33 6d 00 00 08
+°
+4
+Z
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 63 33 6d 00 00 08
+°
+4
+Z
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 63 33 6d 00 00 08
+°
+4
+Z
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 63 33 6d 00 00 08
+°
+4
+Z
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 63 33 6d 00 00 08
+°
+4
+Z
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 63 33 6d 00 00 08
+°
+4
+Z
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 63 33 6d 00 00 08
+°
+4
+Z
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 63 33 6d 00 00 08
+°
+4
+Z
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 63 33 6d 00 00 08
+°
+4
+Z
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 63 33 6d 00 00 08
+°
+4
+Z
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 63 33 6d 00 00 08
+°
+4
+Z
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 63 33 6d 00 00 08
+°
+4
+Z
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 7b 79 ed 30 00 08
+9
+3
+piGpio initialisation succeeded
+init successful
+here
+Status: 1, chr: @, byte: 40
+Function: 7
+ Frame: 63 33 6d 00 00 08
+°
+4
+Z
