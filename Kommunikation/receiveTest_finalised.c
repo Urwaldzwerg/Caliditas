@@ -213,7 +213,7 @@ int readFrame(int fd, unsigned char* func, unsigned char* data)
   return i;
 }
 
-int processData(unsigned char* func, unsigned char* data, int len)
+int processData(unsigned char* func, unsigned char* data, int len, unsigned char* buffOut)
 {
   //function to process the data received and act upon it
   switch(*func)
@@ -243,13 +243,25 @@ int processData(unsigned char* func, unsigned char* data, int len)
     }
     case '7':
     {     //Seven Segment Display
+
       int i;
-      for(i = 0; i < len; i++)
+			buffOut[0] = 'T';
+			int
+			for(i = 0; i < (len - 2); i++)
       {
         //take saved data and send it through the decoder
         unsigned char d = data[i];
         printf("%s\n", sevenOut[d]);
+				buffout[i + 1] = sevenOut[d];
       }
+			buffOut[i + 1] = 'H';			//written for test purposes, as it can't really be tested as of right now
+			buffOut[i + 2] = '2';			//will be changed in the future
+			buffOut[i + 3] = '0';
+			buffOut[i + 4] = 'K';
+			buffOut[i + 5] = 'F';
+			buffOut[i + 6] = 'F';
+			buffOut[i + 7] = 'E';
+
       return 0;
     }
 
@@ -380,10 +392,8 @@ int main (void)
 		{
       int status = -1;
       gpioWrite(EN485, 0);
-      printf("here\n");
   		unsigned char in;
       in = readByteWithParity(uart0_filestream, &status);
-      printf("Status: %d, chr: %c, byte: %02x\n", status, in, in);
   		switch (status)
   		{
   			case 1: {
@@ -410,10 +420,16 @@ int main (void)
   			printf(" %02x", data[i]);
   		}
   		printf("\n");
-      if (processData(&func, data, len) < 0)
+
+			unsigned char buffOut[30];
+      if (processData(&func, data, len, buffOut) < 0)
       {
         printf("Process Data failed!\n");
       }
+			for (int i = 0; i < 30; i ++)
+			{
+				printf("%c", buffOut[i]);
+			}
     }
   }
 
