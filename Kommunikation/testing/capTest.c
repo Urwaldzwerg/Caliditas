@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <pigpio.h>			//Used for GPIO programming
 
-#define PIN 21
-#define LED 2
+#define PIN 5
+#define LED 28
 
 int setup()
 {

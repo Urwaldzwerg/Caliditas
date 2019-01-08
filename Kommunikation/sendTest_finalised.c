@@ -1,8 +1,6 @@
 /*aliditas receive test program, destined to become the final program for the diploma project
 	Written by: Mario Sharkhawy
-
 	Compile with: gcc -Wall -pthread -o program program.c -lpigpio -lrt
-
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -173,4 +171,3 @@ int main (void)
 	//----- CLOSE THE UART -----
 	close(uart0_filestream);
 }
-

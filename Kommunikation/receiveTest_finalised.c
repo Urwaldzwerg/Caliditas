@@ -1,62 +1,109 @@
 /*
 	Caliditas receive test program, destined to become the final program for the diploma project
 	Written by: Mario Sharkhawy
-
 	Compile with: gcc -Wall -pthread -o program program.c -lpigpio -lrt
-
 */
+
+//libraries
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <unistd.h>			//Used for UART
-#include <fcntl.h>			//Used for UART
-#include <termios.h>		//Used for UART
-#include <pigpio.h>			//Used for GPIO programming
+#include <unistd.h>     //Used for UART
+#include <fcntl.h>      //Used for UART
+#include <termios.h>      //Used for UART
+#include <pigpio.h>     //Used for GPIO programming
 
-#define INTERFACE "/dev/ttyAMA0"		//set your Interface Port here
+//defines
+#define INTERFACE "/dev/ttyAMA0"      //set your Interface Port here
 #define MAXDATA 10
-#define EN485 4					//set the pin that determines RX or TX functionality of the shield
+#define EN485 4     //set the pin that determines RX or TX functionality of the shield
 
-static const unsigned char addressSlave = 0x41;		//set adress of slave here; Sting A should represent 0x41
+//address variables
+static const unsigned char addressSlave = 0x41;     //set address of slave here
+static const unsigned char addressGroup = 0x40;     //set address of broadcast call here
 
+//BUS setup
 int uart0_filestream = -1;
+struct termios options;     //initialise global struct for configuring our BUS
 
-
-unsigned char readByteWithParity(int fd, int *status) {
-
-	unsigned char buf;
-
-	// read 1st byte
-	if (read(fd, &buf, 1) != 1) {
-		*status = -1;	// error
-		return 0;
-	}
-	else if (buf != 0xFF) {
-		*status = 0;	// ok - normal data
-		return buf;
-	}
-	// read next byte
-	if (read(fd, &buf, 1) != 1) {
-		*status = -1;	// error again
-		return 0;
-	}
-	else if (buf == 0xFF) {	// just 0xFF that was escaped
-		*status = 0;
-		return buf;
-	}
-	else if (buf == 0) {	// parity "error" detected
-		// read next byte	// get real data byte
-		if (read(fd, &buf, 1) != 1) {
-			*status = -1;	// error again
-			return 0;
-		}
-		*status = 1;	// flag as address byte
-		return buf;
-	}
-	return buf;
+//functions for sending
+int sendData(int fd, char tx_chr)
+{
+  // write next byte with SPACE parity (address bit is 0)
+  tcgetattr(uart0_filestream, &options);      //get current options
+  options.c_cflag &= ~PARODD;1      //set SPACE parity
+  tcsetattr(uart0_filestream, TCSADRAIN, &options);     //set changed attributes
+  int count = write(fd, &tx_chr, 1);      //write one byte
+  tcflush(fd, TCIOFLUSH);     //flush anything incoming or outgoing that hasn't been sent or received
+  if (count != 1) {     //if count is not 1 then the write failed
+    printf("wrerr\n");      //let user know
+    exit(-1);     //exit the program
+  }
+  return count;
 }
 
+int sendAddress(int fd, char tx_chr)
+{
+  // write first 4 bytes with MARK Parity (address bit is 1)
+  tcgetattr(uart0_filestream, &options);      //get current options
+  options.c_cflag |= PARODD;      //set MARK parity
+  tcsetattr(uart0_filestream, TCSADRAIN, &options);     //set changed attributes
+  int count = write(fd, &tx_chr, 1);      //write one byte
+  tcflush(fd, TCIOFLUSH);      //flush anything incoming or outgoing that hasn't been sent or received
+  if (count != 1) {     //if count is not 1 then the write failed
+    printf("wrerr\n");      //let user know
+    exit(-1);     //exit the program
+  }
+  return count;
+}
+
+//functions for receiving
+unsigned char readByteWithParity(int fd, int *status)
+{
+  //function to read an incoming byte and determine it's parity for later use
+  unsigned char buf;
+  // read 1st byte
+  if (read(fd, &buf, 1) != 1)
+  {
+    *status = -1;	// error
+    return 0;
+  }
+  else if (buf != 0xFF)
+  {
+    *status = 0;	// ok - normal data
+    return buf;
+  }
+  // read next byte
+  if (read(fd, &buf, 1) != 1)
+  {
+    *status = -1;	// error again
+    return 0;
+  }
+  else if (buf == 0xFF)
+  {
+    // just 0xFF that was escaped
+    *status = 0;
+    return buf;
+  }
+  else if (buf == 0)
+  {
+    // parity "error" detected
+    // read next byte	// get real data byte
+    if (read(fd, &buf, 1) != 1)
+    {
+      *status = -1;	// error again
+      return 0;
+    }
+    *status = 1;	// flag as address byte
+    return buf;
+  }
+  return buf;
+}
+
+//funcions for evaluation
+
 static const char* sevenOut[256] = {
+  //array to save specific bit-patterns used for decoding some data
   [0b10000000] = ".",
   [0b01111110] = "0",
   [0b00110000] = "1",
@@ -95,102 +142,141 @@ static const char* sevenOut[256] = {
   [0b00011100] = "u",
   [0b00111011] = "y",
   [0b01101101] = "Z",
-  [0b01100011] = "�"
+  [0b01100011] = "°"
 };
 
 _Bool checkAddress(unsigned char addr)
 {
-	return (addr == addressSlave);
+  //function to check if received address byte matches one of the addresses
+  return (addr == addressSlave || addr == addressGroup);
 }
 
 int readFrame(int fd, unsigned char* func, unsigned char* data)
 {
-	int status = -1;
-	unsigned char cSum = 0;
+  //function to read a frame according to documentation and save the frame and compare checkSum
+	int status = -1;     //prerequisite for readByteWithParity
+	unsigned char cSum = 0;      //initialise checkSum
 
-	unsigned char dataLen = readByteWithParity(fd, &status);
-	if (status != 0)
-	{
-		return -1;		//If anything but data is received the frame is invalid
-	}
+  unsigned char dataLen = readByteWithParity(fd, &status);     //read length of data block
+  if (status != 0)
+  {
+    return -1;      //If anything but data is received the frame is invalid
+  }
 
-	*func = readByteWithParity(fd, &status);
-	if (status != 0)
-	{
-		return -1;		//If anything but data is received the frame is invalid
-	}
-	cSum += *func;
+  *func = readByteWithParity(fd, &status);      //read the function of the frame
+  if (status != 0)
+  {
+    return -1;      //If anything but data is received the frame is invalid
+  }
+  cSum += *func;      //add the function to the checkSum
 
-	if (readByteWithParity(fd, &status) != 0x02)
-	{
-		return -1;
-	}
-	if (status != 0)
-	{
-		return -1;		//If anything but data is received the frame is invalid
-	}
-	cSum += 0x02;
+  if (readByteWithParity(fd, &status) != 0x02)      //see if next byte is STX
+  {
+    return -1;
+  }
+  if (status != 0)
+  {
+    return -1;      //If anything but data is received the frame is invalid
+  }
+  cSum += 0x02;     //add STX to the checkSum
 
-	int i;
-	for(i = 0; i < dataLen; i ++)
-	{
- 		data[i] = readByteWithParity(fd, &status);
-		if (status != 0)
-		{
-			return -1;		//If anything but data is received the frame is invalid
-		}
-		cSum += data[i];
-	}
+  int i;
+  for(i = 0; i < dataLen; i ++)     //read data block, based off of it's length saved earlier
+  {
+    data[i] = readByteWithParity(fd, &status);
+    if (status != 0)
+    {
+      return -1;      //If anything but data is received the frame is invalid
+    }
+    cSum += data[i];      //add data block to checkSum
+  }
 
-	if (readByteWithParity(fd, &status) != 0x03)
-	{
-		printf("frame exit %d\n", status);
-		return -1;
-	}
-	if (status != 0)
-	{
-		return -1;		//If anything but data is received the frame is invalid
-	}
-	cSum += 0x03;
+  if (readByteWithParity(fd, &status) != 0x03)      //see if next byte is ETX
+  {
+    printf("frame exit %d\n", status);
+    return -1;
+  }
+  if (status != 0)
+  {
+    return -1;      //If anything but data is received the frame is invalid
+  }
+  cSum += 0x03;     //add ETX to checkSum
 
-	if (readByteWithParity(fd, &status) != cSum)
-	{
-		return -1;
-	}
-	if (status != 0)
-	{
-		return -1;		//If anything but data is received the frame is invalid
-	}
-	return i;
+  if (readByteWithParity(fd, &status) != cSum)      //see if next byte is same as our checkSum
+  {
+    return -1;
+  }
+  if (status != 0)
+  {
+    return -1;      //If anything but data is received the frame is invalid
+  }
+  return i;
 }
 
 int processData(unsigned char* func, unsigned char* data, int len)
 {
-  switch(*func) {
-    case 'I': {   //Initialisation
+  //function to process the data received and act upon it
+  switch(*func)
+  {
+    case 'I':
+    {     //Initialisation
       printf("Initialisation\n");
-      return 0;
-    }
-    case '7': {   //Seven Segment Display
-			int i;
-      for(i = 0; i < len; i++)
+      int l = 7;      //set length of response
+      char tx_buffer[] = {0x10, 0x01, 'I', 0x02, 0x00, 0x03, 0x4E};     //buffer for answer to be sent
+      gpioWrite(EN485, 1);      //Enable RS485 Output
+      int count = 0;      //count how many bytes were sent
+      int i = 0;
+      count = sendAddress(uart0_filestream, tx_buffer[i]);      //send first byte which is the address byte
+      i++;
+      for(; i < l; i++)     //send remaining buffer bytes as data bytes
       {
-        unsigned char d = data[i];
-	printf("%s\n", sevenOut[d]);
+        count += sendData(uart0_filestream, tx_buffer[i]);
       }
 
+      printf("Written %d bytes...\n", count);     //print the bytes written
+      if (count < 0)      //if count is smaller than 0 the write failed
+      {
+        printf("UART TX error\n");      //let user know
+        exit(11);     //exit the program
+      }
       return 0;
     }
-    case 'W': {   //Slave Temperature
+    case '7':
+    {     //Seven Segment Display
+      int i;
+      for(i = 0; i < len; i++)
+      {
+        //take saved data and send it through the decoder
+        unsigned char d = data[i];
+        printf("%s\n", sevenOut[d]);
+      }
+      return 0;
+    }
+
+    case 'W':
+    {     //Slave Temperature
       printf("Slave Temperature\n");
+      int l = 7;
+      char tx_buffer[] = {0x10, 0x01, 'W', 0x02, 0b00011001, 0x03, 0x75};
+      gpioWrite(EN485, 1);      //Enable RS485 Output
+      int count = 0;
+      int i = 0;
+      count = sendAddress(uart0_filestream, tx_buffer[i]);
+      i++;
+      for(; i < l; i++)
+      {
+        count += sendData(uart0_filestream, tx_buffer[i]);
+      }
       return 0;
     }
-    case 'T': {   //Slave Buttons
+
+    case 'T':
+    {     //Slave Buttons
       printf("Slave Buttons\n");
       return 0;
     }
     default:
-			return -1;
+    return -1;
   }
 }
 
