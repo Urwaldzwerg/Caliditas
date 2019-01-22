@@ -31,12 +31,12 @@ int sendData(int fd, char tx_chr)
 {
   // write next byte with SPACE parity (address bit is 0)
   tcgetattr(uart0_filestream, &options);      //get current options
-  options.c_cflag &= ~PARODD;1      //set SPACE parity
+  options.c_cflag &= ~PARODD;      //set SPACE parity
   tcsetattr(uart0_filestream, TCSADRAIN, &options);     //set changed attributes
   int count = write(fd, &tx_chr, 1);      //write one byte
   tcflush(fd, TCIOFLUSH);     //flush anything incoming or outgoing that hasn't been sent or received
   if (count != 1) {     //if count is not 1 then the write failed
-    printf("wrerr\n");      //let user know
+//    printf("wrerr\n");      //let user know
     exit(-1);     //exit the program
   }
   return count;
@@ -51,7 +51,7 @@ int sendAddress(int fd, char tx_chr)
   int count = write(fd, &tx_chr, 1);      //write one byte
   tcflush(fd, TCIOFLUSH);      //flush anything incoming or outgoing that hasn't been sent or received
   if (count != 1) {     //if count is not 1 then the write failed
-    printf("wrerr\n");      //let user know
+//    printf("wrerr\n");      //let user know
     exit(-1);     //exit the program
   }
   return count;
@@ -124,7 +124,7 @@ static const char* sevenOut[256] = {
   [0b01001111] = "E",
   [0b01000111] = "F",
   [0b11000111] = "F.",
-  [0b01011111] = "G",
+//  [0b01011111] = "G",
   [0b00110111] = "H",
   [0b10110111] = "H.",
   [0b00010111] = "h",
@@ -134,14 +134,14 @@ static const char* sevenOut[256] = {
   [0b00011101] = "o",
   [0b00010101] = "n",
   [0b01100111] = "p",
-  [0b01011011] = "S",
+//  [0b01011011] = "S",
   [0b00001111] = "t",
   [0b00000101] = "r",
   [0b10000101] = "r.",
   [0b00111110] = "U",
   [0b00011100] = "u",
   [0b00111011] = "y",
-  [0b01101101] = "Z",
+//  [0b01101101] = "Z",
   [0b01100011] = "°"
 };
 
@@ -193,7 +193,7 @@ int readFrame(int fd, unsigned char* func, unsigned char* data)
 
   if (readByteWithParity(fd, &status) != 0x03)      //see if next byte is ETX
   {
-    printf("frame exit %d\n", status);
+//    printf("frame exit %d\n", status);
     return -1;
   }
   if (status != 0)
@@ -213,14 +213,14 @@ int readFrame(int fd, unsigned char* func, unsigned char* data)
   return i;
 }
 
-int processData(unsigned char* func, unsigned char* data, int len, unsigned char* buffOut)
+int processData(unsigned char* func, unsigned char* data, int len)
 {
   //function to process the data received and act upon it
   switch(*func)
   {
     case 'I':
     {     //Initialisation
-      printf("Initialisation\n");
+//      printf("Initialisation\n");
       int l = 7;      //set length of response
       char tx_buffer[] = {0x10, 0x01, 'I', 0x02, 0x00, 0x03, 0x4E};     //buffer for answer to be sent
       gpioWrite(EN485, 1);      //Enable RS485 Output
@@ -233,41 +233,42 @@ int processData(unsigned char* func, unsigned char* data, int len, unsigned char
         count += sendData(uart0_filestream, tx_buffer[i]);
       }
 
-      printf("Written %d bytes...\n", count);     //print the bytes written
+//      printf("Written %d bytes...\n", count);     //print the bytes written
       if (count < 0)      //if count is smaller than 0 the write failed
       {
-        printf("UART TX error\n");      //let user know
+//        printf("UART TX error\n");      //let user know
         exit(11);     //exit the program
       }
       return 0;
     }
     case '7':
     {     //Seven Segment Display
-
+//      printf("7 Segments\n");
       int i;
-			buffOut[0] = 'T';
-			int
-			for(i = 0; i < (len - 2); i++)
+			unsigned char denom = '0';
+
+      const char* digit1 = sevenOut[data[0]];
+      const char* digit2 = sevenOut[data[1]];
+      const char* digit3 = sevenOut[data[2]];
+      const char* digit4 = sevenOut[data[3]];
+
+      if(digit1 == "°")
       {
-        //take saved data and send it through the decoder
-        unsigned char d = data[i];
-        printf("%s\n", sevenOut[d]);
-				buffout[i + 1] = sevenOut[d];
+        denom = 'T';
+        printf("Sending: Denom: %c Values: %s%s%s%s\n", denom, digit4, digit3, digit2, digit1);
       }
-			buffOut[i + 1] = 'H';			//written for test purposes, as it can't really be tested as of right now
-			buffOut[i + 2] = '2';			//will be changed in the future
-			buffOut[i + 3] = '0';
-			buffOut[i + 4] = 'K';
-			buffOut[i + 5] = 'F';
-			buffOut[i + 6] = 'F';
-			buffOut[i + 7] = 'E';
+      if(digit1 == "r." || digit1 == "F.")
+      {
+        denom = 'H';
+        printf("Sending: Denom: %c Values: %s%s%s%s\n", denom, digit4, digit3, digit2, digit1);
+      }
 
       return 0;
     }
 
     case 'W':
     {     //Slave Temperature
-      printf("Slave Temperature\n");
+//      printf("Slave Temperature\n");
       int l = 7;
       char tx_buffer[] = {0x10, 0x01, 'W', 0x02, 0b00011001, 0x03, 0x75};
       gpioWrite(EN485, 1);      //Enable RS485 Output
@@ -284,7 +285,7 @@ int processData(unsigned char* func, unsigned char* data, int len, unsigned char
 
     case 'T':
     {     //Slave Buttons
-      printf("Slave Buttons\n");
+//      printf("Slave Buttons\n");
       return 0;
     }
     default:
@@ -339,16 +340,16 @@ int setup()
 	if (uart0_filestream < 0)
 	{
 		//ERROR - CAN'T OPEN SERIAL PORT
-		printf("Error - Unable to open UART.  Ensure it is not in use by another application\n");
+//		printf("Error - Unable to open UART.  Ensure it is not in use by another application\n");
 		exit(1);
 	}
 	if(gpioInitialise() < 0)
   {
-    printf("piGpio initialisation failed\n");
+//    printf("piGpio initialisation failed\n");
 		exit(2);
   }else
   {
-    printf("piGpio initialisation succeeded\n");
+//    printf("piGpio initialisation succeeded\n");
   }
 
 	if(gpioSetMode(EN485, PI_OUTPUT) == 0)		//setup RS485 enable pin as output
@@ -356,7 +357,7 @@ int setup()
 		//setting gpio mode succeeded
 	}else
 	{
-		printf("failed to set gpio mode\n");
+//		printf("failed to set gpio mode\n");
 		exit(3);
 	}
 
@@ -365,7 +366,7 @@ int setup()
 		//setting pin to LOW succeeded
 	}else
 	{
-		printf("failed to write to pin\n");
+//		printf("failed to write to pin\n");
 		exit(4);
 	}
 
@@ -378,12 +379,12 @@ int main (void)
 {
 	if (setup() != 1)
 	{
-		printf("error with init\n");
+//		printf("error with init\n");
 		exit(10);
 	}
 	else
 	{
-		printf("init successful\n");
+//		printf("init successful\n");
 	}
 
 	while (1)
@@ -404,32 +405,27 @@ int main (void)
   			}
   			case 0: continue;
   			case -1:
-  			default: printf("Error!\n"); continue;
+  			default: /*printf("Error!\n");*/ continue;
   		}
   		unsigned char func;
   		unsigned char data[256];
   		int len = readFrame(uart0_filestream, &func, data);
   		if (len < 0)
   		{
-  			printf("Invalid Frame!\n");
+//  			printf("Invalid Frame!\n");
   			continue;
   		}
-  		printf("Function: %c\n Frame:", func);
+/*  		printf("Function: %c\n Frame:", func);
   		for (int i = 0; i < len; i ++)
   		{
-  			printf(" %02x", data[i]);
+        printf(" %02x", data[i]);
   		}
   		printf("\n");
 
-			unsigned char buffOut[30];
-      if (processData(&func, data, len, buffOut) < 0)
+*/      if (processData(&func, data, len) < 0)
       {
-        printf("Process Data failed!\n");
+//        printf("Process Data failed!\n");
       }
-			for (int i = 0; i < 30; i ++)
-			{
-				printf("%c", buffOut[i]);
-			}
     }
   }
 
