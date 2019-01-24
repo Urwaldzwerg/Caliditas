@@ -255,12 +255,12 @@ int processData(unsigned char* func, unsigned char* data, int len)
       if(digit1 == "°")
       {
         denom = 'T';
-        printf("Sending: Denom: %c Values: %s%s%s%s\n", denom, digit4, digit3, digit2, digit1);
+        printf("%c%s%s%s\n", denom, /*digit4,*/ digit3, digit2);
       }
       if(digit1 == "r." || digit1 == "F.")
       {
         denom = 'H';
-        printf("Sending: Denom: %c Values: %s%s%s%s\n", denom, digit4, digit3, digit2, digit1);
+        printf("%c%s%s\n", denom, digit4, digit3);
       }
 
       return 0;
