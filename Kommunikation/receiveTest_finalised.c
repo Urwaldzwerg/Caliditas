@@ -1,13 +1,14 @@
 /*
 	Caliditas receive test program, destined to become the final program for the diploma project
 	Written by: Mario Sharkhawy
-	Compile with: gcc -Wall -pthread -o program program.c -lpigpio -lrt
+	Compile with: gcc -Wall -pthread -o rxText receiveTest_finalised.c -lpigpio -lrt
 */
 
 //libraries
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 #include <unistd.h>     //Used for UART
 #include <fcntl.h>      //Used for UART
 #include <termios.h>      //Used for UART
@@ -17,6 +18,13 @@
 #define INTERFACE "/dev/ttyAMA0"      //set your Interface Port here
 #define MAXDATA 10
 #define EN485 4     //set the pin that determines RX or TX functionality of the shield
+
+#define DEBUG
+/*      Example for debugging outputs
+#ifdef DEBUG
+fprintf(stderr)...
+#endif
+*/
 
 //address variables
 static const unsigned char addressSlave = 0x41;     //set address of slave here
@@ -63,40 +71,53 @@ unsigned char readByteWithParity(int fd, int *status)
   //function to read an incoming byte and determine it's parity for later use
   unsigned char buf;
   // read 1st byte
+	fprintf(stderr, "before read\n");
   if (read(fd, &buf, 1) != 1)
   {
+	fprintf(stderr, "read != 1\n");
     *status = -1;	// error
     return 0;
   }
   else if (buf != 0xFF)
   {
+	fprintf(stderr, "buf != 0xFF\n");
     *status = 0;	// ok - normal data
     return buf;
   }
   // read next byte
+	fprintf(stderr, "before 2nd read\n");
   if (read(fd, &buf, 1) != 1)
   {
+	fprintf(stderr, "2nd read != 1\n");
     *status = -1;	// error again
     return 0;
   }
   else if (buf == 0xFF)
   {
+	fprintf(stderr, "buf == 0xFF\n");
     // just 0xFF that was escaped
     *status = 0;
+	fprintf(stderr, "returning buf after 2nd read\"%c\"\n", buf);
     return buf;
   }
   else if (buf == 0)
   {
+	fprintf(stderr, "buf == 0\n");
     // parity "error" detected
     // read next byte	// get real data byte
+	fprintf(stderr, "before 3rd read\n");
     if (read(fd, &buf, 1) != 1)
     {
+	fprintf(stderr, "3rd read != 1\n");
       *status = -1;	// error again
       return 0;
     }
     *status = 1;	// flag as address byte
+	fprintf(stderr, "returning buf after 3rd read\"%c\"\n", buf);
     return buf;
   }
+	fprintf(stderr, "returning buf after 1st read\"%c\"\n", buf);
+    return buf;
   return buf;
 }
 
@@ -244,7 +265,6 @@ int processData(unsigned char* func, unsigned char* data, int len)
     case '7':
     {     //Seven Segment Display
 //      printf("7 Segments\n");
-      int i;
 			unsigned char denom = '0';
 
       const char* digit1 = sevenOut[data[0]];
@@ -252,16 +272,18 @@ int processData(unsigned char* func, unsigned char* data, int len)
       const char* digit3 = sevenOut[data[2]];
       const char* digit4 = sevenOut[data[3]];
 
-      if(digit1 == "°")
+
+      if(strcmp(digit1, "°") == 0)
       {
         denom = 'T';
-        printf("%c%s%s\0\n", denom, /*digit4,*/ digit3, digit2);
+        printf("%c%s%sE\n", denom, /*digit4,*/ digit3, digit2);
       }
-      if(digit1 == "r." || digit1 == "F.")
+      if (strcmp(digit1, "r.") == 0 || strcmp(digit1, "F.") == 0)
       {
         denom = 'H';
-        printf("%c%s%s\0\n", denom, digit4, digit3);
+        printf("%c%s%sE\n", denom, digit4, digit3);
       }
+	fflush(stdout);
 
       return 0;
     }
@@ -431,4 +453,5 @@ int main (void)
 
 	//----- CLOSE THE UART -----
 	close(uart0_filestream);
+
 }
